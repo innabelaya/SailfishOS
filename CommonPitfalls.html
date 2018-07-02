@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>CommonPitfalls</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>Общие проблемы при разработке приложений для операционной системы Sailfish</header>
+  <div>
+    <h1>Отсутствие полезных активных обложек</h1>
+      <p align="justify">Обложки активных приложений (активные обложки) с функцией <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-coveraction.html/">CoverAction</a> лежат в основе многозадачности операционной системы Sailfish. Однако при адаптации приложений под операционную систему Sailfish концепция активных обложек может показаться разработчикам незначительной, потому что такие системы, как Android, iOS и оригинальные приложения N9 Meego не имеют подобной функциональности.</p>
+      <p align="justify">С помощью активных обложек можно не только легко переключаться между приложениями, но и просматривать состояния экранов или совершать действия в открытых приложениях, не посещая их. Активная обложка должна предоставлять пользователю основную информацию о приложении, показывать рабочие задачи и обеспечивать быстрый доступ к основным действиям, например, сохранению нового элемента или поиску элементов в списке, когда приложение свернуто на домашний экран.</p>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/weakactivecover.png" alt="Обложка активного приложения" />
+  
+    <h1>Нестандартные цвета надписей</h1>
+      <p align="justify">В операционной системе Sailfish для обозначения интерактивности элемента интерфейса используют цвета стилей (атмосфер) платформы. Существуют исключения, но в большинстве случаев кнопки, переключатели, пункты списков и другие элементы, которые должны реагировать на действия пользователя, окрашивают в <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#primaryColor">основные цвета</a> выбранной атмосферы. Для элементов, которые используются для описания интерфейса, например, статические надписи, заголовки страниц или разделов применяют <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#highlightColor">фоновые цвета</a> (подсветку) атмосферы.</p>
+      <p align="justify">В примере ниже текст интерфейса — это не интерактивный элемент, поэтому для него используют фоновую подсветку <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#highlightColor">Theme.highlightColor</a>.</p>
+      <p><code>
+        Dialog {<Br>
+            Label {<Br>
+                color: Theme.highlightColor<Br>
+                text: "Terms of Use. By selecting Accept you agree to..."<Br>
+                width: parent.width<Br>
+            }<Br>
+        }<Br>
+      </code></p>
+      <p align="justify">Надписи в элементах интерфейса и иконки при нажатии должны окрашиваться в фоновые цвета атмосферы. Слева на снимке экрана первый пункт списка окрашен в основной цвет атмосферы, хотя пункт уже выбран. Такое поведение не соответствует стилю платформы Sailfish. На правом снимке экрана выбранный пункт подсвечен правильно.</p>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/presseffect.png" alt="Стилевые эффекты при нажатии" />
+      <p align="justify">В нативных компонентах Silica со встроенным текстом, таких как <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-button.html/">кнопка</a>, <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-combobox.html/">комбинированный список</a> и <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-contextmenu.html/">контекстное меню</a> при нажатии текст окрашивается автоматически. Для пользовательских компонентов эффект автоматической подсветки текста необходимо реализовывать дополнительно. Например:</p>
+      <p><code>
+          ListItem {<Br>
+          id: listItem<Br>
+          width: parent.width<Br>
+              <Br>
+          Label {<Br>
+              text: model.text<Br>
+              color: listItem.highlighted ? Theme.highlightColor :<Br>
+              Theme.primaryColor<Br>
+          }<Br>
+      }<Br>
+      </code></p>
+      <p align="justify">Рекомендации по стилевым эффектам при нажатии см. в разделе <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/">Темы</a>.</p>
+    
+    <h1>Неправильное выравнивание, размеры или интервалы</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/padding.png" alt="Выравнивание элементов интерфейса" />
+      <p align="justify">Элементы интерфейса и их содержимое должны гармонично размещаться на дисплее, для этого размер элементов должен соответствовать стандартам операционной системы Sailfish. Чтобы улучшить визуальное восприятие интерфейса и повысить читаемость, к элементам интерфейса применяют консистентные правила для выравнивания, размеров и межстрочных интервалов.</p>
+      <p align="justify">В приложениях Sailfish графика и изображения обычно выравнивают по краям страницы (например, отображение в галерее или альбомы в Media). Текст и иконки в элементах управления обычно отделяют от края страницы с помощью отступов, заданных через <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#horizontalPageMargin">Theme.horizontalPageMargin</a> (слева и справа) и <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#paddingLarge">Theme.paddingLarge</a> (сверху и снизу).</p>
+      <p align="justify">Некоторые текстовые контролы, например, комбинированные списки, текстовые поля, заголовки страницы для определения горизонтальных отступов своего содержимого используют значения <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#horizontalPageMargin">Theme.horizontalPageMargin</a> по умолчанию. Эти отступы могут быть изменены с помощью значений в свойствах <code>leftMargin</code> и <code>rightMargin</code> (например, изменение отступа слева (<a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pageheader.html/#leftMargin">leftMargin</a>) для заголовка страницы (<a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pageheader.html/">PageHeader</a>)). Для создания собственных пользовательских элементов, необходимо добавить отступы самостоятельно. Например, текстовый элемент <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-label.html/">Label</a>, описанный ниже, привязывается к полной ширине родительского элемента, а затем принимает свойства <code>anchors.leftMargin</code> и <code>anchors.rightMargin</code>, если это необходимо:</p>
+      <p><code>
+          Page { <Br>
+          Label {<Br>
+            <Br>
+              text: "A very, very, very long sentence that will extend beyond the width of the screen."<Br>
+              truncationMode: TruncationMode.Fade<Br>
+              color: Theme.highlightColor<Br>
+      <Br>
+              anchors {<Br>
+                  left: parent.left<Br>
+                  leftMargin: Theme.horizontalPageMargin <Br>
+                  right: parent.right<Br>
+                  rightMargin: Theme.horizontalPageMargin <Br>
+                  verticalCenter: parent.verticalCenter<Br>
+              } <Br>
+          }<Br>
+      }<Br>
+      </code></p>
+      <p align="justify">Размеры элементов пользовательского интерфейса, такие как размеры шрифтов и пункты списка, должны быть одинаковыми во всем приложении и соответствовать стандартам стилей операционной системы Sailfish. <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/">Темы</a>, которая предоставляет набор стандартных параметров, отступов и цветов для стилизации содержимого пользовательского интерфейса Sailfish. Подробная информация и руководство описаны в документации к <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/">Theme</a>.</p>
+    
+    <h1>Мелкие сенсорные области</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/touchareas.png" alt="Сенсорные области элемента" />
+      <p align="justify">Некоторые разработчики создают приложения с мелкими интерактивными элементами пользовательского интерфейса. Работа с такими элементами вызывает проблемы у пользователей, так как успешное нажатие на элемент требует большей концентрации и точности попадания. Проблема может усугубиться тем, что большинство компонентов интерфейса Sailfish не имеют визуальных границ интерактивной области, поэтому легко ошибиться в размерах сенсорных областей.</p>
+      <p align="justify">Чтобы максимально увеличить сенсорные области элементов, изменяют размер свойства <a href="http://doc.qt.io/qt-5/qml-qtquick-mousearea.html">MouseArea</a>. Если элемент размещен с помощью типа позиционирования <a href="http://doc.qt.io/qt-5/qtquick-positioning-layouts.html#row">Row</a> или <a href="http://doc.qt.io/qt-5/qtquick-positioning-layouts.html#column">Column</a>, необходимо перераспределить незадействованные пиксели в интервалах между соседними элементами внутрь области касания элемента. Сенсорные элементы не должны быть меньше высоты, указанной в свойствах <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#itemSizeSmall">Theme.itemSizeSmall</a>. Предпочтительно, чтобы высота большинства сенсорных элементов была равна значению <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-theme.html/#itemSizeMedium">Theme.itemSizeMedium</a> или больше, в зависимости от их сложности.</p>
+    
+    <h1>Избыточные пункты в меню Pulley</h1>
+      <p align="justify">Меню Pulley должно иметь минимальное количество пунктов. Здесь действуют те же правила, что и для традиционной панели инструментов мобильного приложения: меню не должно состоять из 6 и более пунктов.</p>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/toomanypulleyitems.png" alt="Элементы меню Pulley" />
+      <p align="justify">Большинство приложений платформы Sailfish предоставляют от одного до трех возможных действий в меню Pulley на странице. Чтобы не перегружать меню и облегчить доступ к пунктам, в <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pulldownmenu.html/">PullDownMenu</a> или <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pushupmenu.html/">PushUpMenu</a> не показывают более четырех действий.</p>
+    
+    <h1>Отображение неактивного меню Pulley</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/pulleydisabling.png" alt="Неактивное меню" />
+      <p align="justify">Некоторые пункты меню Pulley становятся доступными только после выполнения определенных условий. Меню Pulley не показывают, если все его пункты неактивны и их нельзя использовать.</p>
+      <p><code>
+          PullDownMenu {<Br>
+          MenuItem { text: "Remove" }<Br>
+      <Br><Br
+          visible: playList.selectionCount > 0<Br>
+      }<Br>
+      </code></p>
+    
+    <h1>Отсутствие значка прокрутки</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/scrolldecorator.png" alt="Значок прокрутки" />
+      <p align="justify">Любая страница, которая может накапливать контент, выходящий за пределы экрана, должна иметь значок прокрутки. Он показывает текущее положение просмотра относительно остального доступного содержимого вне экрана.</p>
+      <p><code>
+          SilicaListView {<Br>
+          anchors.fill: parent<Br>
+          VerticalScrollDecorator {}<Br>
+      }<Br>
+      </code></p>
+    
+    <h1>Использование кнопок вместо жестов платформы</h1>
+      <p align="justify">В Sailfish управление устройством основано на жестах. Жесты «применить» и «отменить» заменяют традиционные кнопки подтверждения или отмены. Жест «назад» используют вместо кнопки «назад». Кнопки «выход» и «домой» заменяют жестом, при котором нужно потянуть от левого или правого края экрана к центру и обратно. Кроме того, меню Pulley заменяет традиционные панели инструментов в приложениях.</p>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/dialog.png" alt="Диалоговое окно" />
+      <p align="justify">Чтобы создать пользовательский интерфейс, совместимый с приложениями платформы Sailfish, используйте управление с помощью жестов везде, где это возможно. Например, на правом снимке экрана в диалоговом окне кнопки «Accept» и «Cancel» расположены в заголовке страницы с помощью опции <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-dialogheader.html/">DialogHeader</a>, вместо отдельных кнопок «Accept» и «Cancel». Действия кнопки могут быть реализованы с помощью обработчиков сигналов в диалоге <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-dialog.html/#onAccepted-signal">onAccepted</a> и <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-dialog.html/#onRejected-signal">onRejected</a>:</p>
+      <p><code>
+          Dialog {<Br>
+          onAccepted: account.logIn()<Br>
+          onRejected: accountCreationCanceled()<Br>
+      }<Br>
+      </code></p>
+    
+    <h1>Несоответствие названия поля и подсказки</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/editors.png" alt="Подсказки и названия полей" />
+      <p align="justify">Каждое текстовое поле в Sailfish должно определять значения для свойств <code>placeholderText</code> и <code>label</code>. Текст подсказки отображается в пустом поле ввода. Он описывает, какие данные должен указать пользователь. Название поля имеет ту же цель, но отображается уже после того, как пользователь ввел текст. Оба свойства могут использовать одну и ту же строку для описания, например: «Имя», «Фамилия», «Электронная почта» и т. д.</p>
+      <p><code>
+          Column {<Br>
+          width: parent.width<Br>
+          <Br>
+          TextField {<Br>
+              placeholderText: "First name"<Br>
+              label: "First name"<Br>
+              width: parent.width<Br>
+          } <Br>
+      <Br>
+          TextArea {<Br>
+              placeholderText: "Last name"<Br>
+              label: "Last name"<Br>
+              width: parent.width<Br>
+          }<Br>
+      }</code></p>
+    
+    <h1>Отсутствие конфигурации для клавиши Enter</h1>
+      <img src="https://raw.githubusercontent.com/innabelaya/SailfishOS/master/images/enterkey.png" alt="Конфигурирование клавиши Enter" />
+      <p align="justify">В однострочном текстовом поле клавиша <code>Enter</code> не может создать дополнительную строку, поэтому ее функциональность может быть перенастроена с помощью свойства <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-enterkey.html/">EnterKey</a>. В подобной ситуации клавишу <code>Enter</code> обычно используют для перемещения фокуса клавиатуры между последовательными текстовыми полями:</p>
+      <p><code>
+          TextField {<Br>
+          label: "Username"<Br>
+          placeholderText: "Username"<Br>
+          width: parent.width<Br>
+          <Br>
+          // Нажатие разрешено только после ввода текста<Br>
+          EnterKey.enabled: text.length > 0<Br>
+      <Br>
+          // Показывает иконку 'next', чтобы дать понять, что нажатие на клавишу <Br>
+          // `Enter` будет перемещать фокус клавиатуры между последовательными <Br>
+          // текстовыми полями на странице<Br>
+          EnterKey.iconSource: "image://theme/icon-m-enter-next"<Br>
+
+          // После нажатия на клавишу `Enter`, переместить фокус клавиатуры <Br>
+          // в следующее поле<Br>
+          EnterKey.onClicked: passwordField.focus = true<Br>
+      }</code></p>
+      <p align="justify">Если поле на странице последнее, клавишу <code>Enter</code> используют для сохранения или отправки введенных данных.</p>
+      <p><code>
+          TextField {<Br>
+          label: "Password"<Br>
+          placeholderText: "Password"<Br>
+          width: parent.width<Br>
+       <Br>
+          EnterKey.enabled: text.length > 0<Br>
+          EnterKey.iconSource: "image://theme/icon-m-enter-accept" <Br>
+          EnterKey.onClicked: account.login()<Br>
+      }</code></p>
+      <p align="justify">Если описанные выше действия нельзя применить, клавиша <code>Enter</code> может закрывать экранную клавиатуру.</p>
+      <p><code>
+          TextField {<Br>
+          label: "Password"<Br>
+          placeholderText: "Password"<Br>
+          width: parent.width<Br>
+      <Br>
+          EnterKey.iconSource: "image://theme/icon-m-enter-close"<Br>
+          EnterKey.onClicked: focus = false<Br>
+      }<Br>
+      </code></p>
+    
+    <h1>Глубокая вложенность страниц</h1>
+      <p align="justify"><a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pagestack.html/">Стековая модель навигации</a> по страницам приложения позволяет пользователям легко перемещаться между различными экранами. Однако глубокая вложенность страниц все равно может запутать пользователя в том, где находится текущий экран приложения. Вместо того, чтобы постоянно добавлять всё больше страниц в стек, используйте возможность замены страниц с помощью метода <a href="https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pagestack.html/#replace-method">replace()</a>. Например, поиск по приложению в платформе Maps заменяет существующие искомые страницы, а не добавляет новые, чтобы избежать громоздкой (и в теории бесконечно растущей) иерархии стека страниц.</p>
+  </div>
+</body>
